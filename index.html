@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <div class="header-icon" id="headerIcon">☀️</div>
+                <div>
+                    <h1>Weather Dashboard</h1>
+                    <p>Live weather information</p>
+                </div>
+            </div>
+            <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle dark mode">🌙</button>
+        </header>
+
+        <section class="search-section">
+            <form id="searchForm" class="search-form">
+                <input id="cityInput" type="text" placeholder="Search for a city..." autocomplete="off">
+                <button id="searchButton" type="submit">Search</button>
+            </form>
+            <button id="locationButton" class="location-button" type="button">📍 Use My Location</button>
+            <p id="message" class="message" role="alert"></p>
+        </section>
+
+        <section class="weather-card">
+            <div class="location-info">
+                <h2 id="cityName">Indore</h2>
+                <p id="countryName">Madhya Pradesh, India</p>
+            </div>
+            <div class="current-weather">
+                <div class="weather-icon" id="weatherIcon">☀️</div>
+                <div class="temperature-wrap">
+                    <span id="temperature">--</span><span class="degree">°C</span>
+                    <small id="temperatureSmall">--°C</small>
+                </div>
+                <p id="condition">Loading...</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><span>💧</span><p>Humidity</p><strong id="humidity">--</strong></div>
+                <div class="stat-card"><span>💨</span><p>Wind Speed</p><strong id="windSpeed">--</strong></div>
+            </div>
+            <p id="updatedTime" class="updated">Updated: --</p>
+        </section>
+
+        <section class="section-block">
+            <div class="section-title">
+                <h2>5-Day Forecast</h2>
+                <span>Upcoming weather</span>
+            </div>
+            <div id="forecastContainer" class="forecast-grid"></div>
+        </section>
+
+        <section class="section-block recent-section">
+            <div class="section-title">
+                <h2>Recent Searches</h2>
+                <span>Quick access</span>
+            </div>
+            <div id="recentSearches" class="recent-list"></div>
+        </section>
+
+        <footer>Weather data provided by Open-Meteo</footer>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
