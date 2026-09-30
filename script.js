@@ -149,9 +149,9 @@ async function getWeatherByCity(city) {
     }
 
 }
-
 async function getWeatherByCoordinates(latitude, longitude) {
     try {
+        // Get the actual city/location name from the coordinates
         const locationResponse = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
         );
@@ -177,7 +177,11 @@ async function getWeatherByCoordinates(latitude, longitude) {
             admin1: state
         };
 
-        await fetchWeather(latitude, longitude, location);
+        await fetchWeather(
+            latitude,
+            longitude,
+            location
+        );
 
     } catch (error) {
         showError(
@@ -188,7 +192,6 @@ async function getWeatherByCoordinates(latitude, longitude) {
         setLoading(false);
     }
 }
-
 async function fetchWeather(latitude, longitude, location) {
     const params = new URLSearchParams({
         latitude,
