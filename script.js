@@ -152,9 +152,38 @@ async function getWeatherByCity(city) {
 
 async function getWeatherByCoordinates(latitude, longitude) {
     try {
-        await fetchWeather(latitude, longitude, { name: "Your Location", country: "", admin1: "" });
+        const locationResponse = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        );
+
+        if (!locationResponse.ok) {
+            throw new Error("Unable to determine your location.");
+        }
+
+        const locationData = await locationResponse.json();
+
+        const city =
+            locationData.city ||
+            locationData.locality ||
+            locationData.principalSubdivision ||
+            "Your Location";
+
+        const country = locationData.countryName || "";
+        const state = locationData.principalSubdivision || "";
+
+        const location = {
+            name: city,
+            country: country,
+            admin1: state
+        };
+
+        await fetchWeather(latitude, longitude, location);
+
     } catch (error) {
-        showError(error.message || "Unable to load weather for your location.");
+        showError(
+            error.message ||
+            "Unable to load weather for your location."
+        );
     } finally {
         setLoading(false);
     }
