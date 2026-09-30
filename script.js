@@ -48,16 +48,40 @@ searchForm.addEventListener("submit", event => {
 
 if (locationButton) {
     locationButton.addEventListener("click", () => {
-        if (!navigator.geolocation) return showError("Location is not supported by this browser.");
+
+        if (!navigator.geolocation) {
+            showError("Location is not supported by this browser.");
+            return;
+        }
+
         setLoading(true);
         clearMessage();
+
         navigator.geolocation.getCurrentPosition(
-            position => getWeatherByCoordinates(position.coords.latitude, position.coords.longitude),
-            () => {
-                setLoading(false);
-                showError("Unable to access your location. Please allow location permission and try again.");
+            position => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                getWeatherByCoordinates(latitude, longitude);
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+            error => {
+                setLoading(false);
+
+                if (error.code === 1) {
+                    showError("Location permission was denied. Please allow location access.");
+                } else if (error.code === 2) {
+                    showError("Your location could not be determined. Please try again.");
+                } else if (error.code === 3) {
+                    showError("Location request timed out. Please try again.");
+                } else {
+                    showError("Unable to access your current location.");
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 20000,
+                maximumAge: 0
+            }
         );
     });
 }
@@ -149,49 +173,41 @@ async function getWeatherByCity(city) {
     }
 
 }
+
 async function getWeatherByCoordinates(latitude, longitude) {
     try {
-        // Get the actual city/location name from the coordinates
         const locationResponse = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
         );
 
         if (!locationResponse.ok) {
-            throw new Error("Unable to determine your location.");
+            throw new Error("Unable to determine your current city.");
         }
 
         const locationData = await locationResponse.json();
 
-        const city =
-            locationData.city ||
-            locationData.locality ||
-            locationData.principalSubdivision ||
-            "Your Location";
-
-        const country = locationData.countryName || "";
-        const state = locationData.principalSubdivision || "";
+        // BigDataCloud's "city" is the significant populated place.
+        // Do NOT use "locality" because it can be a suburb/village/
+        // smaller area such as Bicholi Hapsi.
+        const city = locationData.city || "Current Location";
 
         const location = {
             name: city,
-            country: country,
-            admin1: state
+            admin1: locationData.principalSubdivision || "",
+            country: locationData.countryName || ""
         };
 
-        await fetchWeather(
-            latitude,
-            longitude,
-            location
-        );
+        await fetchWeather(latitude, longitude, location);
 
     } catch (error) {
         showError(
-            error.message ||
-            "Unable to load weather for your location."
+            error.message || "Unable to determine your current location."
         );
     } finally {
         setLoading(false);
     }
 }
+
 async function fetchWeather(latitude, longitude, location) {
     const params = new URLSearchParams({
         latitude,
